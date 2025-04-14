@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Runway Predictor</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #eef2f3;
+            padding: 50px;
+            text-align: center;
+        }
+        form {
+            background: white;
+            display: inline-block;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+        }
+        input, select {
+            margin: 10px;
+            padding: 10px;
+            width: 220px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background: #28a745;
+            color: white;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        h2 {
+            color: #333;
+        }
+        img {
+            border-radius: 8px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        }
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #999;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🛬 Runway Predictor System</h1>
+    <p><strong>Model Accuracy:</strong> {{ accuracy }}%</p>
+
+    <form method="POST">
+        <select name="aircraft" required>
+            <option value="">Select Aircraft</option>
+            <option value="A320">A320</option>
+            <option value="B737">B737</option>
+            <option value="B747">B747</option>
+            <option value="A380">A380</option>
+        </select><br>
+        <input type="number" name="wind" step="0.1" placeholder="Wind Direction (°)" required><br>
+        <input type="number" name="hour" step="0.1" placeholder="Arrival Hour (e.g., 14.5)" required><br>
+        <button type="submit">Predict Runway</button>
+    </form>
+
+
+{% if prediction %}
+    <h2>Result: Aircraft {{ user_input.aircraft }} at {{ user_input.hour }}h with wind {{ user_input.wind }}° will land on <strong>{{ prediction }}</strong>.</h2>
+    <p><strong>Estimated wait time:</strong> {{ wait_time }} minutes</p>
+{% endif %}
+
+
+{% if runway_queue %}
+    <h3>Runway Queue:</h3>
+    <table border="1">
+        <tr>
+            <th>Aircraft</th>
+            <th>Runway</th>
+            <th>ETA</th>
+        </tr>
+        {% for flight in runway_queue %}
+        <tr>
+            <td>{{ flight.aircraft }}</td>
+            <td>{{ flight.runway }}</td>
+            <td>{{ flight.eta }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endif %}
+
+
+    <hr style="margin: 40px 0;">
+
+    <h2>📈 Runway Prediction Visualizations</h2>
+    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; margin-top: 20px;">
+        <div>
+            <h3>Runway Assignment Count</h3>
+            <img src="{{ url_for('static', filename='plots/runway_count.png') }}" width="300">
+        </div>
+        <div>
+            <h3>Avg Arrival Hour</h3>
+            <img src="{{ url_for('static', filename='plots/arrival_hour_avg.png') }}" width="300">
+        </div>
+        <div>
+            <h3>Wind Direction vs Runway</h3>
+            <img src="{{ url_for('static', filename='plots/wind_vs_runway.png') }}" width="300">
+        </div>
+    </div>
+
+    <hr style="margin: 40px 0;">
+    <h2>🛫 Real-Time Runway Queue</h2>
+    <table>
+        <thead>
+            <tr><th>Runway</th><th>Scheduled Aircraft</th><th>ETA</th></tr>
+        </thead>
+        <tbody>
+            {% for row in runway_queue %}
+            <tr>
+                <td>{{ row.runway }}</td>
+                <td>{{ row.aircraft }}</td>
+                <td>{{ row.eta }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
